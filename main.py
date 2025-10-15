@@ -3,7 +3,7 @@
 Main entry point for the Music Streaming API
 Railpack will automatically detect and run this with uvicorn
 """
-from streaming_main import app
+from streaming_improved import app
 
 if __name__ == "__main__":
     import uvicorn
