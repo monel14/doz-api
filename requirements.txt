@@ -1,9 +1,17 @@
-# Flask core
-Flask==3.0.0
-Flask-CORS==4.0.0
+# FastAPI core
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# YouTube Music API
+ytmusicapi==1.7.0
 
 # Audio processing
 yt-dlp==2023.12.30
+
+# Request handling
+python-multipart==0.0.6
+pydantic==2.5.0
+aiofiles
 
 # Utilities
 python-dotenv==1.0.0
