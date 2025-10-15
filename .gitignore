@@ -1,0 +1,17 @@
+# Fichiers audio téléchargés
+audio_files/
+*.mp3
+*.m4a
+*.webm
+*.ogg
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Environment variables
+.env
