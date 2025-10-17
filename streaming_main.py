@@ -172,9 +172,9 @@ async def clear_cache():
 if __name__ == "__main__":
     import uvicorn
     print("🎵 Démarrage du serveur API Music Streaming (Version Complète)...")
-    print("📡 API disponible sur: http://localhost:8001")
-    print("📡 API disponible sur: http://192.168.1.134:8001")
-    print("📚 Documentation: http://localhost:8001/docs")
+    print("📡 API disponible sur: http://localhost:8000")
+    print("📡 API disponible sur: http://192.168.1.134:8000")
+    print("📚 Documentation: http://localhost:8000/docs")
     print("🎧 Streaming audio réel activé avec yt-dlp")
     
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

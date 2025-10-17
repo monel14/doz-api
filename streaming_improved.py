@@ -21,7 +21,7 @@ app.add_middleware(
 
 ytmusic = YTMusic()
 audio_cache = {}
-CACHE_DURATION = 1800
+CACHE_DURATION = 300  # 5 minutes au lieu de 30
 
 # User agents rotatifs pour éviter la détection
 USER_AGENTS = [
@@ -36,6 +36,9 @@ class SearchRequest(BaseModel):
     query: str
     filter: Optional[str] = "songs"
     limit: Optional[int] = 20
+
+class PlaylistRequest(BaseModel):
+    playlist_id: str
 
 def is_cache_valid(timestamp):
     return time.time() - timestamp < CACHE_DURATION
@@ -184,6 +187,10 @@ def extract_audio_improved(video_id: str):
 async def root():
     return {"message": "Music Streaming API - Improved Anti-Detection", "version": "2.1.0"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": time.time()}
+
 @app.post("/search")
 async def search_music(request: SearchRequest):
     try:
@@ -195,7 +202,7 @@ async def search_music(request: SearchRequest):
 @app.get("/stream/{video_id}")
 async def stream_audio(video_id: str):
     try:
-        # Vérifier le cache
+        # Vérifier le cache (mais avec une durée plus courte)
         if video_id in audio_cache:
             cache_entry = audio_cache[video_id]
             if is_cache_valid(cache_entry['timestamp']):
@@ -205,6 +212,9 @@ async def stream_audio(video_id: str):
                     "cached": True,
                     "expires_in": CACHE_DURATION - (time.time() - cache_entry['timestamp'])
                 }
+            else:
+                # Cache expiré, le supprimer
+                del audio_cache[video_id]
         
         # Extraire l'URL audio
         result = extract_audio_improved(video_id)
@@ -212,7 +222,7 @@ async def stream_audio(video_id: str):
         if not result['success']:
             raise HTTPException(status_code=404, detail=result.get('error', 'Extraction failed'))
         
-        # Mettre en cache
+        # Mettre en cache avec timestamp actuel
         audio_cache[video_id] = {
             'url': result['audio_url'],
             'title': result['title'],
@@ -227,7 +237,8 @@ async def stream_audio(video_id: str):
             "quality": result.get('quality', 'unknown'),
             "duration": result.get('duration', 0),
             "strategy": result.get('strategy', 'unknown'),
-            "note": result.get('note', '')
+            "note": result.get('note', ''),
+            "cache_duration": CACHE_DURATION
         }
             
     except Exception as e:
@@ -241,6 +252,23 @@ async def get_song_info(video_id: str):
         return song_info
     except Exception as e:
         raise HTTPException(status_code=404, detail="Song not found")
+
+@app.get("/charts")
+async def get_charts():
+    try:
+        # Récupérer les charts populaires
+        charts = ytmusic.get_charts()
+        return charts
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/playlist")
+async def get_playlist(request: PlaylistRequest):
+    try:
+        playlist = ytmusic.get_playlist(request.playlist_id)
+        return playlist
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Playlist not found")
 
 @app.get("/cache/stats")
 async def get_cache_stats():
@@ -266,4 +294,4 @@ async def clear_cache():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

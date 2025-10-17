@@ -6,7 +6,7 @@ import requests
 import json
 import time
 
-BASE_URL = "https://doz-api-production.up.railway.app"
+BASE_URL = "http://localhost:8001"
 
 # Différentes vidéos à tester
 TEST_VIDEOS = [
